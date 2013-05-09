@@ -4,26 +4,25 @@
   (:import java.io.File)
   (:import org.yaml.snakeyaml.Yaml))
 
-(def confs (for [x (.listFiles (File. "conf/runs")) :when (.isFile x)] x))
-(def nodes (for [x confs] (.getName x)))
-(def yaml  (Yaml. (ExtendedConstructor.)))
+(def confs    (for [x (.listFiles (File. "conf/runs")) :when (.isFile x)] x))
+(def nodes    (for [x confs] (.getName x)))
+(def yaml     (Yaml. (ExtendedConstructor.)))
 
 (defn extends [conf]
   (.get (.load yaml (slurp (.getPath conf))) "extends"))
 
 (def edges (zipmap nodes (for [x confs] (extends x))))
 
-;; memoize path-to-root
-(defn path-to-root [src]
-  (let [dst (edges src)]
-    (if (nil? dst)
-      {}
-      (conj {src dst} (path-to-root dst)))))
+(def rootpath
+  (memoize (fn [src]
+             (let [dst (edges src)]
+               (if (nil? dst)
+                 {}
+                 (conj {src dst} (rootpath dst)))))))
 
 (defn filtered-edges [prefix]
   (let [re (re-pattern (str prefix ".*"))]
-    (into {} (for [[src dst] edges :when (re-matches re src)]
-               (path-to-root src)))))
+    (into {} (for [[src dst] edges :when (re-matches re src)] (rootpath src)))))
 
 (defn edge-str [[src dst]] (str "  " src " -> " dst ";"))
 
