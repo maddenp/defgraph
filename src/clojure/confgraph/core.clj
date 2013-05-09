@@ -13,10 +13,6 @@
 
 (def edges (zipmap nodes (for [x confs] (extends x))))
 
-(defn filtered-edges [prefix]
-  (let [e edges]
-    (for 
-
 ;; memoize path-to-root
 (defn path-to-root [src]
   (let [dst (edges src)]
@@ -24,8 +20,12 @@
       {}
       (conj {src dst} (path-to-root dst)))))
 
-(defn edge-str [edge]
-  (str "  " (first edge) " -> " (second edge) ";"))
+(defn filtered-edges [prefix]
+  (let [re (re-pattern (str prefix ".*"))]
+    (into {} (for [[src dst] edges :when (re-matches re src)]
+               (path-to-root src)))))
+
+(defn edge-str [[src dst]] (str "  " src " -> " dst ";"))
 
 (defn usage []
   (println "NEED USAGE STRING HERE")
