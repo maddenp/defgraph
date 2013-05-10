@@ -1,35 +1,10 @@
-# confgraph
+confgraph
+=========
 
-FIXME: description
+WORK IN PROGRESS
 
-## Installation
+A tool to draw dependency graphs for [ddts](https://github.com/maddenp/ddts) configurations.
 
-Download from http://example.com/FIXME.
+### License
 
-## Usage
-
-FIXME: explanation
-
-    $ java -jar confgraph-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
-
-## License
-
-Copyright © 2013 FIXME
-
-Distributed under the Eclipse Public License, the same as Clojure.
+The contents of this repository are released under the [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) license.
