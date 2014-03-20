@@ -10,7 +10,7 @@
 
 (def  yaml (Yaml. (ExtendedConstructor.)))
 (defn extends [conf] (.get (.load yaml (slurp (.getPath conf))) "extends"))
-(def  confs (for [x (.listFiles (File. "conf/runs")) :when (.isFile x)] x))
+(def  confs (for [x (.listFiles (File. "configs/runs")) :when (.isFile x)] x))
 (def  nodes (for [x confs] (.getName x)))
 (def  edges (zipmap nodes (for [x confs] (extends x))))
 
@@ -38,7 +38,7 @@
     (reduce
      (fn [g [src dst]]
        (let [id (keyword (str (name src) "-" (name dst)))]
-         (add-edge g id (keyword src) (keyword dst) :marker-end nil :style {:stroke "grey"})))
+         (add-edge g id (keyword src) (keyword dst) :style {:stroke "grey"})))
      g
      (first e))))
 
