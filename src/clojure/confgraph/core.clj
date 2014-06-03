@@ -8,11 +8,11 @@
         lacij.layouts.layout
         lacij.view.graphview))
 
-(def  yaml (Yaml. (ExtendedConstructor.)))
-(defn extends [conf] (.get (.load yaml (slurp (.getPath conf))) "extends"))
-(def  confs (for [x (.listFiles (File. "configs/runs")) :when (.isFile x)] x))
-(def  nodes (for [x confs] (.getName x)))
-(def  edges (zipmap nodes (for [x confs] (extends x))))
+(def yaml (Yaml. (ExtendedConstructor.)))
+(def extends (memoize (fn [conf] (.get (.load yaml (slurp (.getPath conf))) "extends"))))
+(def confs (for [x (.listFiles (File. "configs/runs")) :when (.isFile x)] x))
+(def nodes (for [x confs] (.getName x)))
+(def edges (zipmap nodes (for [x confs] (extends x))))
 
 (def rootpath
   (memoize (fn [src]
@@ -46,11 +46,27 @@
   (println "Supply at most a single filtering prefix.")
   (System/exit 1))
 
-(defn -main [& args]
-  (alter-var-root #'*read-eval* (constantly false))
-  (if (> (count args) 1) (usage))
+(defn out-dracula [fe]
+  (println "$(document).ready(function() {")
+  (println "var g=new Graph();")
+  (doseq [x fe]
+    (let [[t h] x]
+      (println (str "g.addEdge("\" t "\",\"" h "\");"))))
+  (println "var layouter=new Graph.Layout.Spring(g,topological_sort(g));")
+  (println "var renderer=new Graph.Renderer.Raphael('canvas',g,$(document).width(),$(document).height());")
+  (println "});"))
+
+(defn out-lacij [fe]
   (-> (graph)
-      (add-edges (into [] (filtered-edges (first args))))
+      (add-edges (into [] fe))
       (layout :hierarchical)
       (build)
       (export "graph.svg")))
+  
+(defn out-prn [fe]
+  (prn fe))
+
+(defn -main [& args]
+  (alter-var-root #'*read-eval* (constantly false))
+  (if (> (count args) 1) (usage))
+  (let [fe (filtered-edges (first args))] (out-lacij fe)))
