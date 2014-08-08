@@ -3,7 +3,7 @@ confgraph
 
 WORK IN PROGRESS
 
-A tool to draw dependency graphs for [ddts](https://github.com/maddenp/ddts) configurations.
+A tool to visualize [DDTS](https://github.com/maddenp/ddts) definition-dependency graphs.
 
 1. lein uberjar
 2. cp target/confgraph-1-standalone.jar [$DDTSAPP](https://github.com/maddenp/ddts/blob/master/README)/confgraph.jar
