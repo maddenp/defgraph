@@ -26,5 +26,4 @@
   (if (> (count args) 1)
     (do (println "Supply at most a single filtering prefix.")
         (System/exit 1)))
-  (let [fe (edges (first args))]
-    (prn fe)))
+  (prn (edges (first args))))
