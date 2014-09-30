@@ -7,11 +7,12 @@
            org.jgrapht.graph.DefaultEdge
            org.yaml.snakeyaml.Yaml))
 
-(def yaml      (Yaml. (ExtendedConstructor.)))
-(def extends   (memoize (fn [d] (.get (.load yaml (slurp (.getPath d))) "ddts_extends"))))
-(def defs      (for [x (.listFiles (File. "defs/runs")) :when (.isFile x)] x))
-(def vertices  (for [x defs] (.getName x)))
-(def raw-edges (zipmap vertices (for [x defs] (extends x))))
+(def yaml       (Yaml. (ExtendedConstructor.)))
+(def defs       (filter #(.isFile %) (.listFiles (File. "defs/runs"))))
+(def vertices   (map #(.getName %) defs))
+(def extends    (fn [x] (.get (.load yaml (slurp (.getPath x))) "ddts_extends")))
+(def precursors (map extends defs))
+(def raw-edges  (zipmap vertices precursors))
 
 (def rootpath
   (memoize #(let [dst (raw-edges %)]
@@ -29,4 +30,4 @@
     (let [edges (edges (first args)) graph (DefaultDirectedGraph. DefaultEdge)]
       (doseq [v vertices] (. graph (addVertex v)))
       (doseq [[src dst] edges] (. graph (addEdge src dst)))
-      (println (.toString graph)))))
+      (println (.toString (.edgeSet graph))))))
