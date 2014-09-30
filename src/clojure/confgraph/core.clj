@@ -24,6 +24,5 @@
 (defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
   (if (> (count args) 1)
-    (do (println "Supply at most a single filtering prefix.")
-        (System/exit 1)))
-  (prn (edges (first args))))
+    (println "Supply at most a single filtering prefix.")
+    (prn (edges (first args)))))
