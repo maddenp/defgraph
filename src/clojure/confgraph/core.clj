@@ -2,9 +2,7 @@
   (:gen-class)
   (:import ExtendedConstructor)
   (:import java.io.File)
-  (:import org.yaml.snakeyaml.Yaml)
-  (:import (org.jgrapht EdgeFactory))
-  (:import (org.jgrapht.graph DefaultDirectedGraph DefaultEdge)))
+  (:import org.yaml.snakeyaml.Yaml))
 
 (def yaml     (Yaml. (ExtendedConstructor.)))
 (def extends  (memoize (fn [d] (.get (.load yaml (slurp (.getPath d))) "ddts_extends"))))
@@ -30,8 +28,5 @@
 (defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
   (if (> (count args) 1) (usage))
-  (let [fe (filtered-edges (first args))
-        g (DefaultDirectedGraph. DefaultEdge)]
-    (doseq [v vertices] (. g (addVertex v)))
-    (doseq [e fe] (. g (addEdge (first e) (last e))))
-    (println (.toString g))))
+  (let [fe (filtered-edges (first args))]
+    (prn fe)))
