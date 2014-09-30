@@ -21,12 +21,10 @@
   (let [re (re-pattern (str prefix ".*"))]
     (into {} (for [[src dst] raw-edges :when (re-matches re src)] (rootpath src)))))
 
-(defn usage []
-  (println "Supply at most a single filtering prefix.")
-  (System/exit 1))
-
 (defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
-  (if (> (count args) 1) (usage))
+  (if (> (count args) 1)
+    (do (println "Supply at most a single filtering prefix.")
+        (System/exit 1)))
   (let [fe (edges (first args))]
     (prn fe)))
