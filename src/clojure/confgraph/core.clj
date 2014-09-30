@@ -2,6 +2,9 @@
   (:gen-class)
   (:import ExtendedConstructor
            java.io.File
+           org.jgrapht.EdgeFactory
+           org.jgrapht.graph.DefaultDirectedGraph
+           org.jgrapht.graph.DefaultEdge
            org.yaml.snakeyaml.Yaml))
 
 (def yaml      (Yaml. (ExtendedConstructor.)))
@@ -23,4 +26,7 @@
   (alter-var-root #'*read-eval* (constantly false))
   (if (> (count args) 1)
     (println "Supply at most a single filtering prefix.")
-    (prn (edges (first args)))))
+    (let [edges (edges (first args)) graph (DefaultDirectedGraph. DefaultEdge)]
+      (doseq [v vertices] (. graph (addVertex v)))
+      (doseq [[src dst] edges] (. graph (addEdge src dst)))
+      (println (.toString graph)))))
