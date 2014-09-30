@@ -11,7 +11,6 @@
 (def defs     (for [x (.listFiles (File. "defs/runs")) :when (.isFile x)] x))
 (def vertices (for [x defs] (.getName x)))
 (def edges    (zipmap vertices (for [x defs] (extends x))))
-;;(def edges    (filter #(val %) (zipmap vertices (for [x defs] (extends x)))))
 
 (def rootpath
   (memoize (fn [src]
