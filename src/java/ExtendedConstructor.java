@@ -8,14 +8,20 @@ public class ExtendedConstructor extends Constructor
 {
   public ExtendedConstructor()
   {
-    this.yamlConstructors.put(new Tag("!unquoted"),new ConstructString());
+    this.yamlConstructors.put(new Tag("!delete"  ),new ConstructTagged());
+    this.yamlConstructors.put(new Tag("!replace" ),new ConstructTagged());
+    this.yamlConstructors.put(new Tag("!unquoted"),new ConstructTagged());
   }
 
-  private class ConstructString extends AbstractConstruct
+  private class ConstructTagged extends AbstractConstruct
   {
     public String construct(Node node)
     {
-      return ((ScalarNode)node).getValue();
+      if (node instanceof ScalarNode)
+      {
+        return ((ScalarNode)node).getValue();
+      }
+      return node.toString();
     }
   }
 }
