@@ -11,15 +11,13 @@
 (def raw-edges (zipmap vertices (for [x defs] (extends x))))
 
 (def rootpath
-  (memoize (fn [src]
-             (let [dst (raw-edges src)]
-               (if (nil? dst)
-                 {}
-                 (conj {src dst} (rootpath dst)))))))
+  (memoize #(let [dst (raw-edges %)]
+              (if (nil? dst) {} (conj {% dst} (rootpath dst))))))
 
 (defn edges [prefix]
   (let [re (re-pattern (str prefix ".*"))]
-    (into {} (for [[src dst] raw-edges :when (re-matches re src)] (rootpath src)))))
+    (into {} (for [[src dst] raw-edges :when (re-matches re src)]
+               (rootpath src)))))
 
 (defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
