@@ -1,8 +1,8 @@
 (ns confgraph.core
   (:gen-class)
-  (:import ExtendedConstructor)
-  (:import java.io.File)
-  (:import org.yaml.snakeyaml.Yaml))
+  (:import ExtendedConstructor
+           java.io.File
+           org.yaml.snakeyaml.Yaml))
 
 (def yaml      (Yaml. (ExtendedConstructor.)))
 (def extends   (memoize (fn [d] (.get (.load yaml (slurp (.getPath d))) "ddts_extends"))))
