@@ -1,11 +1,11 @@
 (ns confgraph.core
   (:gen-class)
   (:import
-   com.jgraph.layout.JGraphFacade
-   com.jgraph.layout.hierarchical.JGraphHierarchicalLayout
    [org.jgraph.graph DefaultGraphCell GraphConstants]
    [org.jgrapht ListenableGraph]
    [org.jgrapht.graph ListenableDirectedGraph]
+   com.jgraph.layout.hierarchical.JGraphHierarchicalLayout
+   com.jgraph.layout.JGraphFacade
    ExtendedConstructor
    java.io.File
    javax.swing.JFrame
@@ -43,8 +43,8 @@
       (let [m (.createNestedMap facade true true)
             cache (.getGraphLayoutCache jgraph)]
         (.edit cache m))
-      (doto (JFrame. "TITLE")
-        (.setSize 800 600)
+      (doto (JFrame. "defgraph")
+        (.setSize 1024 768)
         (.setDefaultCloseOperation JFrame/EXIT_ON_CLOSE)
         (.add jgraph)
         (.setVisible true)))))
