@@ -3,7 +3,7 @@
   (:import ExtendedConstructor
            java.io.File
            org.jgrapht.EdgeFactory
-           org.jgrapht.graph.DefaultDirectedGraph
+           org.jgrapht.graph.SimpleDirectedGraph
            org.jgrapht.graph.DefaultEdge
            org.yaml.snakeyaml.Yaml)
   (:refer-clojure :exclude [parents]))
@@ -17,7 +17,7 @@
 (def rootpath (memoize #(let [x (edges %)] (if x (conj {% x} (rootpath x)) {}))))
 
 (defn graph [re]
-  (let [g (DefaultDirectedGraph. DefaultEdge)
+  (let [g (SimpleDirectedGraph. DefaultEdge)
         e (filter #(re-matches re (first %)) edges)]
     (doseq [[a b] (into {} (for [[a b] e] (rootpath a)))]
       (doto g (.addVertex a) (.addVertex b) (.addEdge a b)))
