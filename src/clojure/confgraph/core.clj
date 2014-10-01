@@ -26,4 +26,5 @@
 (defn -main [& args]
   (if (> (count args) 1)
     (println "Supply at most a single filtering prefix.")
-    (println (.toString (graph (re-pattern (str (first args) ".*")))))))
+    (let [g (graph (re-pattern (str (first args) ".*")))]
+      (println (.toString g)))))
