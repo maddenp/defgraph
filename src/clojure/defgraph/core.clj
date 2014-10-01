@@ -4,7 +4,7 @@
    [org.jgraph.graph DefaultGraphCell GraphConstants]
    [org.jgrapht ListenableGraph]
    [org.jgrapht.graph ListenableDirectedGraph]
-   com.jgraph.layout.hierarchical.JGraphHierarchicalLayout
+   com.jgraph.layout.organic.JGraphFastOrganicLayout
    com.jgraph.layout.JGraphFacade
    ExtendedConstructor
    java.io.File
@@ -38,7 +38,7 @@
           adapter (JGraphModelAdapter. g)
           jgraph (JGraph. adapter)
           facade (JGraphFacade. jgraph)
-          layout (JGraphHierarchicalLayout.)]
+          layout (JGraphFastOrganicLayout.)]
       (.run layout facade)
       (let [m (.createNestedMap facade true true)
             cache (.getGraphLayoutCache jgraph)]
