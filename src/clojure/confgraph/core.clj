@@ -1,6 +1,8 @@
 (ns confgraph.core
   (:gen-class)
   (:import
+   com.jgraph.layout.JGraphFacade
+   com.jgraph.layout.hierarchical.JGraphHierarchicalLayout
    [org.jgraph.graph DefaultGraphCell GraphConstants]
    [org.jgrapht ListenableGraph]
    [org.jgrapht.graph ListenableDirectedGraph]
@@ -34,7 +36,13 @@
     (println "Supply at most a single filtering prefix.")
     (let [g (graph (re-pattern (str (first args) ".*")))
           adapter (JGraphModelAdapter. g)
-          jgraph (JGraph. adapter)]
+          jgraph (JGraph. adapter)
+          facade (JGraphFacade. jgraph)
+          layout (JGraphHierarchicalLayout.)]
+      (.run layout facade)
+      (let [m (.createNestedMap facade true true)
+            cache (.getGraphLayoutCache jgraph)]
+        (.edit cache m))
       (doto (JFrame. "TITLE")
         (.setSize 800 600)
         (.setDefaultCloseOperation JFrame/EXIT_ON_CLOSE)
