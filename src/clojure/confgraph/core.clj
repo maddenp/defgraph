@@ -1,14 +1,17 @@
 (ns confgraph.core
   (:gen-class)
-  (:import ExtendedConstructor
-           java.io.File
-           javax.swing.JFrame
-           org.jgraph.JGraph
-           [org.jgraph.graph DefaultGraphCell GraphConstants]
-           org.jgrapht.ext.JGraphModelAdapter
-           [org.jgrapht EdgeFactory ListenableGraph]
-           [org.jgrapht.graph DefaultEdge ListenableDirectedGraph]
-           org.yaml.snakeyaml.Yaml)
+  (:import
+   [org.jgraph.graph DefaultGraphCell GraphConstants]
+   [org.jgrapht ListenableGraph]
+   [org.jgrapht.graph ListenableDirectedGraph]
+   ExtendedConstructor
+   java.io.File
+   javax.swing.JFrame
+   NullEdge
+   org.jgraph.JGraph
+   org.jgrapht.ext.JGraphModelAdapter
+   org.yaml.snakeyaml.Yaml
+   )
   (:refer-clojure :exclude [parents]))
 
 (def defs     (filter #(.isFile %) (.listFiles (File. "defs/runs"))))
@@ -20,7 +23,7 @@
 (def rootpath (memoize #(let [x (edges %)] (if x (conj {% x} (rootpath x)) {}))))
 
 (defn graph [re]
-  (let [g (ListenableDirectedGraph. DefaultEdge)
+  (let [g (ListenableDirectedGraph. NullEdge)
         e (filter #(re-matches re (first %)) edges)]
     (doseq [[a b] (into {} (for [[a b] e] (rootpath a)))]
       (doto g (.addVertex a) (.addVertex b) (.addEdge a b)))
