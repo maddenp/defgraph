@@ -17,14 +17,14 @@
 (def rootpath
   (memoize #(let [x (edges %)] (if x (conj {% x} (rootpath x)) {}))))
 
-(defn graph [prefix]
+(defn graph [re]
   (let [g (DefaultDirectedGraph. DefaultEdge)
-        e (filter #(re-matches (re-pattern (str prefix ".*")) (first %)) edges)]
-    (doseq [v vertices] (. g (addVertex v)))
-    (doseq [[src dst] (into {} (for [[src dst] e] (rootpath src)))] (. g (addEdge src dst)))
+        e (filter #(re-matches re (first %)) edges)]
+    (doseq [[a b] (into {} (for [[a b] e] (rootpath a)))]
+      (doto g (.addVertex a) (.addVertex b) (.addEdge a b)))
     g))
 
 (defn -main [& args]
   (if (> (count args) 1)
     (println "Supply at most a single filtering prefix.")
-    (println (.toString (graph (first args))))))
+    (println (.toString (graph (re-pattern (str (first args) ".*")))))))
