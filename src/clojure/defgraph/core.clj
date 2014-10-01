@@ -39,6 +39,7 @@
           jgraph (JGraph. adapter)
           facade (JGraphFacade. jgraph)
           layout (JGraphFastOrganicLayout.)]
+      (doto jgraph (.setEditable false))
       (.run layout facade)
       (let [m (.createNestedMap facade true true)
             cache (.getGraphLayoutCache jgraph)]
