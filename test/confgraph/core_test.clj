@@ -1,6 +1,6 @@
-(ns confgraph.core-test
+(ns defgraph.core-test
   (:require [clojure.test :refer :all]
-            [confgraph.core :refer :all]))
+            [defgraph.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."

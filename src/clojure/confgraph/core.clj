@@ -1,4 +1,4 @@
-(ns confgraph.core
+(ns defgraph.core
   (:gen-class)
   (:import
    [org.jgraph.graph DefaultGraphCell GraphConstants]
