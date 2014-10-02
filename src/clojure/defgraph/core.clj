@@ -1,17 +1,8 @@
 (ns defgraph.core
   (:gen-class)
   (:import
-   [org.jgraph.graph DefaultGraphCell GraphConstants]
-   [org.jgrapht ListenableGraph]
-   [org.jgrapht.graph ListenableDirectedGraph]
-   com.jgraph.layout.organic.JGraphFastOrganicLayout
-   com.jgraph.layout.JGraphFacade
    ExtendedConstructor
    java.io.File
-   javax.swing.JFrame
-   NullEdge
-   org.jgraph.JGraph
-   org.jgrapht.ext.JGraphModelAdapter
    org.yaml.snakeyaml.Yaml
    )
   (:refer-clojure :exclude [parents]))
@@ -24,28 +15,16 @@
 (def edges    (into {} (filter val (zipmap vertices parents))))
 (def rootpath (memoize #(let [x (edges %)] (if x (conj {% x} (rootpath x)) {}))))
 
+(defn filtered-edges [re]
+  (filter #(re-matches re (first %)) edges))
+
 (defn graph [re]
-  (let [g (ListenableDirectedGraph. NullEdge)
-        e (filter #(re-matches re (first %)) edges)]
-    (doseq [[a b] (into {} (for [[a b] e] (rootpath a)))]
-      (doto g (.addVertex a) (.addVertex b) (.addEdge a b)))
-    g))
+  (println)
+  {:V (set vertices)
+   :E (reduce conj {} (map #(rootpath %) (keys (filtered-edges re))))})
 
 (defn -main [& args]
   (if (> (count args) 1)
     (println "Supply at most a single filtering prefix.")
-    (let [g (graph (re-pattern (str (first args) ".*")))
-          adapter (JGraphModelAdapter. g)
-          jgraph (JGraph. adapter)
-          facade (JGraphFacade. jgraph)
-          layout (JGraphFastOrganicLayout.)]
-      (doto jgraph (.setEditable false))
-      (.run layout facade)
-      (let [m (.createNestedMap facade true true)
-            cache (.getGraphLayoutCache jgraph)]
-        (.edit cache m))
-      (doto (JFrame. "defgraph")
-        (.setSize 1024 768)
-        (.setDefaultCloseOperation JFrame/EXIT_ON_CLOSE)
-        (.add jgraph)
-        (.setVisible true)))))
+    (let [g (graph (re-pattern (str (first args) ".*")))]
+      (println g))))
