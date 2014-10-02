@@ -19,7 +19,6 @@
   (filter #(re-matches re (first %)) edges))
 
 (defn graph [re]
-  (println)
   {:V (set vertices)
    :E (reduce conj {} (map #(rootpath %) (keys (filtered-edges re))))})
 
