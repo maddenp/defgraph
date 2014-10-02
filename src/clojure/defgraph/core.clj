@@ -1,13 +1,11 @@
 (ns defgraph.core
-  (:gen-class)
-  (:refer-clojure :exclude [parents]))
+  (:gen-class))
 
 (def defs     (filter #(.isFile %) (.listFiles (java.io.File. "defs/runs"))))
 (def vertices (map #(.getName %) defs))
 (def yaml     (org.yaml.snakeyaml.Yaml. (ExtendedConstructor.)))
-(def extends  (fn [x] (.get (.load yaml (slurp (.getPath x))) "ddts_extends")))
-(def parents  (map extends defs))
-(def edges    (into {} (filter val (zipmap vertices parents))))
+(def extends  (map #(.get (.load yaml (slurp (.getPath %))) "ddts_extends") defs))
+(def edges    (into {} (filter val (zipmap vertices extends))))
 (def rootpath (memoize #(let [x (edges %)] (if x (conj {% x} (rootpath x)) {}))))
 
 (defn graph [re]
