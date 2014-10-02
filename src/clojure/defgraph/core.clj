@@ -15,12 +15,10 @@
 (def edges    (into {} (filter val (zipmap vertices parents))))
 (def rootpath (memoize #(let [x (edges %)] (if x (conj {% x} (rootpath x)) {}))))
 
-(defn filtered-edges [re]
-  (filter #(re-matches re (first %)) edges))
-
 (defn graph [re]
-  {:V (set vertices)
-   :E (reduce conj {} (map #(rootpath %) (keys (filtered-edges re))))})
+  (let [filtered-edges (filter #(re-matches re (first %)) edges)]
+    {:V (set vertices)
+     :E (reduce conj {} (map #(rootpath %) (keys filtered-edges)))}))
 
 (defn -main [& args]
   (if (> (count args) 1)
