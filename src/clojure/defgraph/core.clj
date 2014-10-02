@@ -1,15 +1,10 @@
 (ns defgraph.core
   (:gen-class)
-  (:import
-   ExtendedConstructor
-   java.io.File
-   org.yaml.snakeyaml.Yaml
-   )
   (:refer-clojure :exclude [parents]))
 
-(def defs     (filter #(.isFile %) (.listFiles (File. "defs/runs"))))
+(def defs     (filter #(.isFile %) (.listFiles (java.io.File. "defs/runs"))))
 (def vertices (map #(.getName %) defs))
-(def yaml     (Yaml. (ExtendedConstructor.)))
+(def yaml     (org.yaml.snakeyaml.Yaml. (ExtendedConstructor.)))
 (def extends  (fn [x] (.get (.load yaml (slurp (.getPath x))) "ddts_extends")))
 (def parents  (map extends defs))
 (def edges    (into {} (filter val (zipmap vertices parents))))
