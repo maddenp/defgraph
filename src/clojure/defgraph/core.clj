@@ -14,24 +14,36 @@
 (defn graph [re]
   (let [filtered-edges (filter #(re-matches re (first %)) edges)
         complete-edges (reduce conj {} (map #(rootpath %) (keys filtered-edges)))]
-    {:V (into #{} (concat (keys complete-edges) (vals complete-edges)))
-     :E complete-edges}))
+    {:v (into #{} (concat (keys complete-edges) (vals complete-edges)))
+     :e complete-edges}))
 
 (defn -main [& args]
   (if (> (count args) 1)
     (println "Supply at most a single filtering prefix.")
-    (let [G (graph (re-pattern (str (first args) ".*")))
-          mxgraph (mxGraph.)
-          parent (.getDefaultParent mxgraph)
-          model (.getModel mxgraph)]
+    (let [g (graph (re-pattern (str (first args) ".*")))
+          mx (mxGraph.)
+          root (.getDefaultParent mx)
+          model (.getModel mx)]
+      (doto mx
+        (.setCellsDisconnectable false)
+        (.setCellsEditable false)
+        (.setCellsResizable false))
       (.beginUpdate model)
-      (let [vs (:V G)
-            mkv #(.insertVertex mxgraph parent nil % 20 20 80 30)
-            vmap (apply hash-map (interleave vs (map mkv vs)))]
-        (doseq [e (:E G)] (.insertEdge mxgraph parent nil "" (vmap (key e)) (vmap (val e)))))
+      (let [vs (:v g)
+            fmkv #(.insertVertex mx root nil % 50 50 0 0)
+            vmap (apply hash-map (interleave vs (map fmkv vs)))]
+        (doseq [[label cell] vmap]
+          (.setConnectable cell false)
+          (.cellLabelChanged mx cell label true))
+        (doseq [e (:e g)]
+          (let [src (vmap (key e))
+                dst (vmap (val e))] 
+            (.setParent src dst)
+            (let [new (.insertEdge mx root nil "" src dst)]
+              (.setParent new src)))))
       (.endUpdate model)
       (doto (JFrame. "defgraph")
         (.setSize 800 600)
         (.setDefaultCloseOperation JFrame/EXIT_ON_CLOSE)
-        (.add (mxGraphComponent. mxgraph))
+        (.add (mxGraphComponent. mx))
         (.setVisible true)))))
