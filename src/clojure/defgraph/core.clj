@@ -2,7 +2,8 @@
   (:gen-class)
   (:import com.mxgraph.swing.mxGraphComponent
            com.mxgraph.view.mxGraph
-           javax.swing.JFrame))
+           javax.swing.JFrame
+           com.mxgraph.layout.mxOrganicLayout))
 
 (def defs     (filter #(.isFile %) (.listFiles (java.io.File. "defs/runs"))))
 (def vertices (map #(.getName %) defs))
@@ -22,28 +23,33 @@
     (println "Supply at most a single filtering prefix.")
     (let [g (graph (re-pattern (str (first args) ".*")))
           mx (mxGraph.)
+          model (.getModel mx)
           root (.getDefaultParent mx)
-          model (.getModel mx)]
+          height 600
+          width 800]
       (doto mx
         (.setCellsDisconnectable false)
         (.setCellsEditable false)
         (.setCellsResizable false))
-      (.beginUpdate model)
-      (let [vs (:v g)
-            fmkv #(.insertVertex mx root nil % 50 50 0 0)
-            vmap (apply hash-map (interleave vs (map fmkv vs)))]
-        (doseq [[label cell] vmap]
-          (.setConnectable cell false)
-          (.cellLabelChanged mx cell label true))
-        (doseq [e (:e g)]
-          (let [src (vmap (key e))
-                dst (vmap (val e))] 
-            (.setParent src dst)
-            (let [new (.insertEdge mx root nil "" src dst)]
-              (.setParent new src)))))
-      (.endUpdate model)
+      (do
+        (.beginUpdate model)
+        (let [vs (:v g)
+              fmkv #(.insertVertex mx root nil % 10 10 0 0)
+              vmap (apply hash-map (interleave vs (map fmkv vs)))]
+          (doseq [[label cell] vmap]
+            (.setConnectable cell false)
+            (.cellLabelChanged mx cell label true))
+          (doseq [e (:e g)]
+            (.insertEdge mx root nil "" (vmap (key e)) (vmap (val e)))))
+        (.endUpdate model))
+      (do
+        (.beginUpdate model)
+        (let [layout (mxOrganicLayout. mx)]
+          (doto layout
+            (.execute root)))
+        (.endUpdate model))
       (doto (JFrame. "defgraph")
-        (.setSize 800 600)
+        (.setSize width height)
         (.setDefaultCloseOperation JFrame/EXIT_ON_CLOSE)
         (.add (mxGraphComponent. mx))
         (.setVisible true)))))
