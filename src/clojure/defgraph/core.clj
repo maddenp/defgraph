@@ -46,17 +46,16 @@
         (.setCellsDisconnectable false)
         (.setCellsEditable false)
         (.setCellsResizable false))
-      (do
-        (.beginUpdate model)
-        (let [vs (:v g)
-              fmkv #(.insertVertex mx root nil % (rand-int width) (rand-int height) 0 0)
-              vmap (apply hash-map (interleave vs (map fmkv vs)))]
-          (doseq [[label cell] vmap]
-            (.setConnectable cell false)
-            (.cellLabelChanged mx cell label true))
-          (doseq [e (:e g)]
-            (.insertEdge mx root nil "" (vmap (key e)) (vmap (val e)))))
-        (.endUpdate model))
+      (.beginUpdate model)
+      (let [vs (:v g)
+            fmkv #(.insertVertex mx root nil % (rand-int width) (rand-int height) 0 0)
+            vmap (apply hash-map (interleave vs (map fmkv vs)))]
+        (doseq [[label cell] vmap]
+          (.setConnectable cell false)
+          (.cellLabelChanged mx cell label true))
+        (doseq [e (:e g)]
+          (.insertEdge mx root nil "" (vmap (key e)) (vmap (val e)))))
+      (.endUpdate model)
       (layout-graph mx model root)
       (let [gc (mxGraphComponent. mx)
             bounds (.getGraphBounds mx)
