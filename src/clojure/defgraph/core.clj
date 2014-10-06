@@ -26,12 +26,10 @@
   (.beginUpdate model)
   (let [layout (mxOrganicLayout. mx)]
     (doto layout
-      (.setFineTuning false)
       (.setBorderLineCostFactor 10)
-      (.setEdgeLengthCostFactor 0.001)
+      (.setEdgeLengthCostFactor 0.0005)
       (.setEdgeDistanceCostFactor 6000)
       (.setEdgeCrossingCostFactor 6000)
-      (.setMaxIterations 2000)
       (.execute root)))
   (.endUpdate model))
 
