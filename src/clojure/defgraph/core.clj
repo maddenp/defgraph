@@ -1,9 +1,10 @@
 (ns defgraph.core
   (:gen-class)
-  (:import com.mxgraph.swing.mxGraphComponent
+  (:import com.mxgraph.layout.mxOrganicLayout
+           com.mxgraph.util.mxPoint
            com.mxgraph.view.mxGraph
            javax.swing.JFrame
-           com.mxgraph.layout.mxOrganicLayout))
+           com.mxgraph.swing.mxGraphComponent))
 
 (def defs     (filter #(.isFile %) (.listFiles (java.io.File. "defs/runs"))))
 (def vertices (map #(.getName %) defs))
@@ -25,8 +26,8 @@
           mx (mxGraph.)
           model (.getModel mx)
           root (.getDefaultParent mx)
-          height 600
-          width 800]
+          height 700
+          width 700]
       (doto mx
         (.setCellsDisconnectable false)
         (.setCellsEditable false)
@@ -34,7 +35,7 @@
       (do
         (.beginUpdate model)
         (let [vs (:v g)
-              fmkv #(.insertVertex mx root nil % 10 10 0 0)
+              fmkv #(.insertVertex mx root nil % (rand-int width) (rand-int height) 0 0)
               vmap (apply hash-map (interleave vs (map fmkv vs)))]
           (doseq [[label cell] vmap]
             (.setConnectable cell false)
@@ -46,10 +47,25 @@
         (.beginUpdate model)
         (let [layout (mxOrganicLayout. mx)]
           (doto layout
+            (.setBorderLineCostFactor 10)
+            (.setEdgeLengthCostFactor 0.001)
+            (.setEdgeDistanceCostFactor 1500)
+            (.setEdgeCrossingCostFactor 24000)
+            (.setMaxIterations 5000)
             (.execute root)))
         (.endUpdate model))
-      (doto (JFrame. "defgraph")
-        (.setSize width height)
-        (.setDefaultCloseOperation JFrame/EXIT_ON_CLOSE)
-        (.add (mxGraphComponent. mx))
-        (.setVisible true)))))
+      (let [gc (mxGraphComponent. mx)
+            bounds (.getGraphBounds mx)
+            view (.getView mx)]
+        (let [offset-x (+ 20 (- (.getX bounds)))
+              offset-y (+ 20 (- (.getY bounds)))]
+          (.setTranslate view (mxPoint. offset-x offset-y)))
+        (let [actual-height (.getHeight bounds)
+              actual-width (.getWidth bounds)
+              scale-factor (* 0.9 (min (/ width actual-width) (/ height actual-height)))]
+          (.setScale view scale-factor))
+        (doto (JFrame. "defgraph")
+          (.add gc)
+          (.setDefaultCloseOperation JFrame/EXIT_ON_CLOSE)
+          (.setSize width height)
+          (.setVisible true))))))
