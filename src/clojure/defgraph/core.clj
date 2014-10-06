@@ -1,10 +1,10 @@
 (ns defgraph.core
   (:gen-class)
-  (:import com.mxgraph.layout.mxOrganicLayout
-           com.mxgraph.util.mxPoint
-           com.mxgraph.view.mxGraph
-           javax.swing.JFrame
-           com.mxgraph.swing.mxGraphComponent))
+  (:import [com.mxgraph.layout mxOrganicLayout]
+           [com.mxgraph.swing mxGraphComponent]
+           [com.mxgraph.util mxPoint]
+           [com.mxgraph.view mxGraph]
+           [javax.swing JFrame]))
 
 (def defs     (filter #(.isFile %) (.listFiles (java.io.File. "defs/runs"))))
 (def vertices (map #(.getName %) defs))
@@ -30,7 +30,7 @@
       (.setEdgeCrossingCostFactor 6000)
       (.setMaxIterations 1000)
       (.execute root)))
-    (.endUpdate model))
+  (.endUpdate model))
 
 (defn -main [& args]
   (if (> (count args) 1)
