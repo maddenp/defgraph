@@ -1,0 +1,1 @@
+mvn deploy:deploy-file -DgroupId=local -DartifactId=jgraphx -Dversion=3.0.1.1 -Dpackaging=jar -Dfile=jgraphx.jar -Durl=file:maven
