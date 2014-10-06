@@ -19,6 +19,19 @@
     {:v (into #{} (concat (keys complete-edges) (vals complete-edges)))
      :e complete-edges}))
 
+(defn layout-graph [mx model root]
+  (.beginUpdate model)
+  (let [layout (mxOrganicLayout. mx)]
+    (doto layout
+      (.setFineTuning false)
+      (.setBorderLineCostFactor 10)
+      (.setEdgeLengthCostFactor 0.001)
+      (.setEdgeDistanceCostFactor 6000)
+      (.setEdgeCrossingCostFactor 6000)
+      (.setMaxIterations 1000)
+      (.execute root)))
+    (.endUpdate model))
+
 (defn -main [& args]
   (if (> (count args) 1)
     (println "Supply at most a single filtering prefix.")
@@ -44,17 +57,7 @@
           (doseq [e (:e g)]
             (.insertEdge mx root nil "" (vmap (key e)) (vmap (val e)))))
         (.endUpdate model))
-      (do
-        (.beginUpdate model)
-        (let [layout (mxOrganicLayout. mx)]
-          (doto layout
-            (.setBorderLineCostFactor 10)
-            (.setEdgeLengthCostFactor 0.001)
-            (.setEdgeDistanceCostFactor 1500)
-            (.setEdgeCrossingCostFactor 24000)
-            (.setMaxIterations 5000)
-            (.execute root)))
-        (.endUpdate model))
+      (layout-graph mx model root)
       (let [gc (mxGraphComponent. mx)
             bounds (.getGraphBounds mx)
             view (.getView mx)]
@@ -65,7 +68,7 @@
               actual-width (.getWidth bounds)
               scale-factor (* 0.9 (min (/ width actual-width) (/ height actual-height)))]
           (.setScale view scale-factor))
-        (doto (JFrame. (str "defgraph" (if prefix (str " - " prefix) "")))
+        (doto (JFrame. (str "defgraph" (if prefix (str " (" prefix ")") "")))
           (.add gc)
           (.setDefaultCloseOperation JFrame/EXIT_ON_CLOSE)
           (.setSize width height)
