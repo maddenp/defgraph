@@ -27,8 +27,8 @@
           mx (mxGraph.)
           model (.getModel mx)
           root (.getDefaultParent mx)
-          height 700
-          width 700]
+          height 1000
+          width 1200]
       (doto mx
         (.setCellsDisconnectable false)
         (.setCellsEditable false)
