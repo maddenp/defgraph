@@ -22,7 +22,8 @@
 (defn -main [& args]
   (if (> (count args) 1)
     (println "Supply at most a single filtering prefix.")
-    (let [g (graph (re-pattern (str (first args) ".*")))
+    (let [prefix (first args)
+          g (graph (re-pattern (str prefix ".*")))
           mx (mxGraph.)
           model (.getModel mx)
           root (.getDefaultParent mx)
@@ -64,7 +65,7 @@
               actual-width (.getWidth bounds)
               scale-factor (* 0.9 (min (/ width actual-width) (/ height actual-height)))]
           (.setScale view scale-factor))
-        (doto (JFrame. "defgraph")
+        (doto (JFrame. (str "defgraph" (if prefix (str " - " prefix) "")))
           (.add gc)
           (.setDefaultCloseOperation JFrame/EXIT_ON_CLOSE)
           (.setSize width height)
