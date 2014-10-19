@@ -1,0 +1,1 @@
+- Get dimensions for layout from *current* size, not default size.
