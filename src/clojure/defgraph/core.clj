@@ -79,7 +79,7 @@
           g (graph (re-pattern (str prefix ".*")))
           panel (JPanel. (BorderLayout.))
           width 1200
-          height 1000
+          height 700
           frame (JFrame. (str "defgraph" (if prefix (str " (" prefix ")") "")))]
       (.add button-panel button)
       (mx-update panel g height width button-panel)
