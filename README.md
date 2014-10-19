@@ -9,4 +9,4 @@ A tool to visualize [DDTS](https://github.com/maddenp/ddts) definition-dependenc
 2. cp target/defgraph-1-standalone.jar [$DDTSAPP](https://github.com/maddenp/ddts/blob/master/README)/defgraph.jar
 3. cd [$DDTSAPP](https://github.com/maddenp/ddts/blob/master/README)
 4. java -jar defgraph.jar [filter-prefix]
-5. ls graph.svg
+5. View, drag nodes, click 'layout' button for new layout.
