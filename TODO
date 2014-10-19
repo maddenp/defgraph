@@ -1,1 +1,2 @@
 - Get dimensions for layout from *current* size, not default size.
+- Add button (or click main window) to save image.
