@@ -5,8 +5,13 @@ WORK IN PROGRESS
 
 A tool to visualize [DDTS](https://github.com/maddenp/ddts) definition-dependency graphs.
 
-1. lein uberjar
-2. cp target/defgraph-1-standalone.jar [$DDTSAPP](https://github.com/maddenp/ddts/blob/master/README)/defgraph.jar
-3. cd [$DDTSAPP](https://github.com/maddenp/ddts/blob/master/README)
-4. java -jar defgraph.jar [filter-prefix]
-5. View, drag nodes, click 'layout' button for new layout.
+Do either
+```
+% lein run <defs-root-path> [filter-prefix]
+```
+or
+```
+% lein uberjar && java -jar target/defgraph.jar <defs-root-path> [filter-prefix]
+```
+
+Then view, drag nodes, click 'layout' button for new layout.

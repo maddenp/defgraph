@@ -7,22 +7,46 @@
            [java.awt BorderLayout]
            [java.awt.event MouseAdapter]
            [javax.swing JButton JFrame JPanel]
-           [javax.swing.border EmptyBorder]))
+           [javax.swing.border EmptyBorder])
+  (:require [clojure.java.io :as io]))
 
-(def defs     (filter #(.isFile %) (.listFiles (java.io.File. "defs/runs"))))
-(def vertices (map #(.getName %) defs))
-(def yaml     (org.yaml.snakeyaml.Yaml. (ExtendedConstructor.)))
-(def extends  (map #(.get (.load yaml (slurp (.getPath %))) "ddts_extends") defs))
-(def edges    (into {} (filter val (zipmap vertices extends))))
-(def rootpath (memoize #(let [x (edges %)] (if x (conj {% x} (rootpath x)) {}))))
+(def yaml (org.yaml.snakeyaml.Yaml. (ExtendedConstructor.)))
 
-(defn graph [re]
-  (let [filtered-edges (filter #(re-matches re (first %)) edges)
-        complete-edges (reduce conj {} (map #(rootpath %) (keys filtered-edges)))]
+(def defs
+  (memoize
+   (fn
+     [root]
+     (filter #(.isFile %) (file-seq (io/file root))))))
+
+(defn vertices
+  [root]
+  (map #(.getName %) (defs root)))
+
+(defn extends
+  [root]
+  (map #(.get (.load yaml (slurp (.getPath %))) "ddts_extends") (defs root)))
+
+(def edges
+  (memoize
+   (fn
+     [root]
+     (into {} (filter val (zipmap (vertices root) (extends root)))))))
+
+(def rootpath
+  (memoize
+   (fn
+     [root]
+     (memoize #(let [x ((edges root) %)] (if x (conj {% x} ((rootpath root) x)) {}))))))
+
+(defn graph
+  [root re]
+  (let [filtered-edges (filter #(re-matches re (first %)) (edges root))
+        complete-edges (reduce conj {} (map #((rootpath root) %) (keys filtered-edges)))]
     {:v (into #{} (concat (keys complete-edges) (vals complete-edges)))
      :e complete-edges}))
 
-(defn mx-layout [mx model root]
+(defn mx-layout
+  [mx model root]
   (.beginUpdate model)
   (let [layout (mxOrganicLayout. mx)]
     (doto layout
@@ -33,7 +57,8 @@
       (.execute root)))
   (.endUpdate model))
 
-(defn mx-mkgc [g height width]
+(defn mx-mkgc
+  [g height width]
   (let [mx (mxGraph.)
         model (.getModel mx)
         root (.getDefaultParent mx)]
@@ -64,19 +89,22 @@
         (.setScale view scale-factor))
       gc)))
 
-(defn mx-update [panel g height width button-panel]
+(defn mx-update
+  [panel g height width button-panel]
   (doto panel
     (.removeAll)
     (.add button-panel BorderLayout/SOUTH)
     (.add (mx-mkgc g height width) BorderLayout/CENTER)))
-  
-(defn -main [& args]
-  (if (> (count args) 1)
-    (println "Supply at most a single filtering prefix.")
-    (let [prefix (first args)
+
+(defn -main
+  [& args]
+  (if (nil? (first args))
+    (println "Expected arguments: <defs-root-path> [filter-prefix]")
+    (let [root (first args)
+          prefix (second args)
           button (JButton. "layout")
           button-panel (JPanel.)
-          g (graph (re-pattern (str prefix ".*")))
+          g (graph root (re-pattern (str prefix ".*")))
           panel (JPanel. (BorderLayout.))
           width 1200
           height 700
@@ -84,11 +112,11 @@
       (.add button-panel button)
       (mx-update panel g height width button-panel)
       (let [f #(do
-                      (.setVisible frame false)
-                      (doto panel
-                        (.removeAll)
-                        (mx-update g height width button-panel))
-                      (.setVisible frame true))]
+                 (.setVisible frame false)
+                 (doto panel
+                   (.removeAll)
+                   (mx-update g height width button-panel))
+                 (.setVisible frame true))]
         (.addMouseListener button (proxy [MouseAdapter] [] (mousePressed [e] (f)))))
       (doto frame
         (.add panel)
