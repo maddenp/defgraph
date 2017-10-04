@@ -12,37 +12,53 @@
 
 (def yaml (org.yaml.snakeyaml.Yaml. (ExtendedConstructor.)))
 
-(def defs
+(def yamldefs
   (memoize
    (fn
      [root]
-     (filter #(.isFile %) (file-seq (io/file root))))))
+     (filter
+      #(.isFile %)
+      (file-seq (io/file root))))))
 
 (defn vertices
   [root]
-  (map #(.getName %) (defs root)))
+  (map
+   #(.getName %)
+   (yamldefs root)))
 
 (defn extends
   [root]
-  (map #(.get (.load yaml (slurp (.getPath %))) "ddts_extends") (defs root)))
+  (map
+   #(.get (.load yaml (slurp (.getPath %))) "ddts_extends")
+   (yamldefs root)))
 
 (def edges
   (memoize
    (fn
      [root]
-     (into {} (filter val (zipmap (vertices root) (extends root)))))))
+     (into
+      {}
+      (filter
+       val
+       (zipmap
+        (vertices root)
+        (extends root)))))))
 
 (def rootpath
   (memoize
    (fn
      [root]
-     (memoize #(let [x ((edges root) %)] (if x (conj {% x} ((rootpath root) x)) {}))))))
+     (memoize
+      #(let [x ((edges root) %)]
+         (if x
+           (conj {% x} ((rootpath root) x))
+           {}))))))
 
 (defn graph
   [root re]
   (let [filtered-edges (filter #(re-matches re (first %)) (edges root))
         complete-edges (reduce conj {} (map #((rootpath root) %) (keys filtered-edges)))]
-    {:v (into #{} (concat (keys complete-edges) (vals complete-edges)))
+    {:v (map #(.getName %) (yamldefs root))
      :e complete-edges}))
 
 (defn mx-layout
