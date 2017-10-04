@@ -55,10 +55,11 @@
            {}))))))
 
 (defn graph
-  [root re]
-  (let [filtered-edges (filter #(re-matches re (first %)) (edges root))
+  [root prefix]
+  (let [re (re-pattern (str prefix ".*"))
+        filtered-edges (filter #(re-matches re (first %)) (edges root))
         complete-edges (reduce conj {} (map #((rootpath root) %) (keys filtered-edges)))]
-    {:v (map #(.getName %) (yamldefs root))
+    {:v (filter #(re-matches re %) (map #(.getName %) (yamldefs root)))
      :e complete-edges}))
 
 (defn mx-layout
@@ -120,7 +121,7 @@
           prefix (second args)
           button (JButton. "layout")
           button-panel (JPanel.)
-          g (graph root (re-pattern (str prefix ".*")))
+          g (graph root prefix)
           panel (JPanel. (BorderLayout.))
           width 1200
           height 700
